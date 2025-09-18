@@ -12,28 +12,41 @@ pygame.display.set_caption("Mini Arcade")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
+BLUE = (50, 100, 200)
+YELLOW = (240, 200, 0)
 
-# Font
-font = pygame.font.SysFont("arial", 32)
+# Fonts (try "comicsansms" or "arialblack" for a chunkier style)
+title_font = pygame.font.SysFont("arialblack", 48)
+menu_font = pygame.font.SysFont("arial", 32)
 
-# Menu options (your chosen names)
+# Menu options
 options = ["Python", "Jumper", "Quit"]
-selected = 0  # track which menu item is highlighted
+selected = 0
 
 
 def draw_menu():
-    """Draws the menu options on screen."""
-    screen.fill(WHITE)
+    """Draws the arcade menu with visuals."""
+    # Background
+    screen.fill(BLUE)
 
     # Title
-    title = font.render("Choose a Game:", True, BLACK)
-    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 50))
+    title = title_font.render("Mini Arcade", True, YELLOW)
+    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 40))
 
     # Options
     for i, option in enumerate(options):
-        color = RED if i == selected else BLACK
-        text = font.render(option, True, color)
-        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 150 + i * 50))
+        # Highlight box
+        if i == selected:
+            pygame.draw.rect(
+                screen, YELLOW,
+                (WIDTH // 2 - 120, 150 + i * 60, 240, 50),
+                border_radius=10
+            )
+
+        # Text
+        color = BLACK if i == selected else WHITE
+        text = menu_font.render(option, True, color)
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 160 + i * 60))
 
     pygame.display.flip()
 
@@ -57,11 +70,9 @@ def main_menu():
                     selected = (selected + 1) % len(options)
                 elif event.key == pygame.K_RETURN:
                     if options[selected] == "Python":
-                        print("Python game would start here!")  # placeholder
-                        # later -> import python_game.run_game(screen)
+                        print("Python game would start here!")
                     elif options[selected] == "Jumper":
-                        print("Jumper game would start here!")  # placeholder
-                        # later -> import jumper.run_game(screen)
+                        print("Jumper game would start here!")
                     elif options[selected] == "Quit":
                         pygame.quit()
                         sys.exit()
