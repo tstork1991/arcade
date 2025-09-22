@@ -16,6 +16,7 @@ WHITE = (255, 255, 255)
 
 def run_game(screen):
     clock = pygame.time.Clock()
+    font = pygame.font.SysFont("arial", 24)
 
     # Snake setup
     snake = [(100, 100), (80, 100), (60, 100)]
@@ -23,6 +24,9 @@ def run_game(screen):
 
     # Food setup
     food = (WIDTH // 2, HEIGHT // 2)
+
+    # Score
+    score = 0
 
     running = True
     while running:
@@ -55,6 +59,7 @@ def run_game(screen):
 
         # Check food
         if new_head == food:
+            score += 1
             food = (
                 random.randrange(0, WIDTH, TILE_SIZE),
                 random.randrange(0, HEIGHT, TILE_SIZE)
@@ -67,14 +72,21 @@ def run_game(screen):
         for segment in snake:
             pygame.draw.rect(screen, GREEN, (segment[0], segment[1], TILE_SIZE, TILE_SIZE))
         pygame.draw.rect(screen, RED, (food[0], food[1], TILE_SIZE, TILE_SIZE))
+        
+        # Draw score
+        score_text = font.render(f"Score: {score}", True, WHITE)
+        screen.blit(score_text, (10, 10))
         pygame.display.flip()
 
         clock.tick(FPS)
 
     # Pause briefly before returning to menu
     screen.fill(BLACK)
-    font = pygame.font.SysFont("arial", 36)
-    msg = font.render("Game Over! Returning to menu...", True, WHITE)
-    screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2))
+    big_font = pygame.font.SysFont("arial", 36)
+    msg = big_font.render("Game Over!", True, WHITE)
+    final_score = font.render(f"Final Score: {score}", True, WHITE)
+    screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2 - 40))
+    screen.blit(final_score, (WIDTH // 2 - final_score.get_width() // 2, HEIGHT // 2 + 10))
+
     pygame.display.flip()
     pygame.time.wait(2000)
