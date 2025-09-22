@@ -1,5 +1,6 @@
 import pygame
 import sys
+import python_game
 
 pygame.init()
 
@@ -70,7 +71,7 @@ def main_menu():
                     selected = (selected + 1) % len(options)
                 elif event.key == pygame.K_RETURN:
                     if options[selected] == "Python":
-                        print("Python game would start here!")
+                        python_game.run_game(screen)    
                     elif options[selected] == "Jumper":
                         print("Jumper game would start here!")
                     elif options[selected] == "Quit":
