@@ -1,6 +1,7 @@
 import pygame
 import sys
 import python_game
+import jumper
 
 pygame.init()
 
@@ -73,7 +74,7 @@ def main_menu():
                     if options[selected] == "Python":
                         python_game.run_game(screen)    
                     elif options[selected] == "Jumper":
-                        print("Jumper game would start here!")
+                        jumper.run_game(screen)
                     elif options[selected] == "Quit":
                         pygame.quit()
                         sys.exit()
