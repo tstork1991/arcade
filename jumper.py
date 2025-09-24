@@ -53,10 +53,16 @@ def run_game(screen):
     # Groups
     all_sprites = pygame.sprite.Group()
     platforms = pygame.sprite.Group()
+    last_platform = None
 
     # Player
     player = Player(WIDTH//2, HEIGHT-100)
     all_sprites.add(player)
+
+    #starting platform
+    start_platform = Platform(WIDTH//2 - 50, HEIGHT - 50, 100, 10)
+    all_sprites.add(start_platform)
+    platforms.add(start_platform)
 
     # Initial platforms
     for i in range(6):
@@ -82,9 +88,11 @@ def run_game(screen):
             if hits:
                 lowest = hits[0]
                 if player.rect.bottom <= lowest.rect.bottom + 10:
+                    if last_platform != lowest:
+                        score += 1
+                        last_platform = lowest
                     player.rect.bottom = lowest.rect.top
                     player.vel_y = JUMP_STRENGTH
-                    score += 1
 
         # Scroll screen when player reaches top
         if player.rect.top <= HEIGHT // 3:
@@ -93,9 +101,10 @@ def run_game(screen):
                 plat.rect.y += abs(player.vel_y)
                 if plat.rect.top >= HEIGHT:
                     plat.kill()
-                    new_p = Platform(random.randint(0, WIDTH-100), -10)
+                    new_y = plat.rect.y - random.randint(50, 120)  # 50–120 px apart
+                    new_p = Platform(random.randint(0, WIDTH-100), new_y)
                     platforms.add(new_p)
-                    all_sprites.add(new_p)
+                    all_sprites.add(new_p)            
 
         # Game Over if fall
         if player.rect.top > HEIGHT:
