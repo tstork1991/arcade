@@ -94,17 +94,21 @@ def run_game(screen):
                     player.rect.bottom = lowest.rect.top
                     player.vel_y = JUMP_STRENGTH
 
-        # Scroll screen when player reaches top
+        # Scroll screen when player reaches top third
         if player.rect.top <= HEIGHT // 3:
             player.rect.y += abs(player.vel_y)
             for plat in platforms:
                 plat.rect.y += abs(player.vel_y)
                 if plat.rect.top >= HEIGHT:
                     plat.kill()
-                    new_y = plat.rect.y - random.randint(50, 120)  # 50–120 px apart
-                    new_p = Platform(random.randint(0, WIDTH-100), new_y)
-                    platforms.add(new_p)
-                    all_sprites.add(new_p)            
+
+        #ensure there are at least 6 platforms above the player
+        while len(platforms) < 6:
+            highest_y = min(p.rect.y for p in platforms)  # top-most platform
+            new_y = highest_y - random.randint(50, 120)   # spawn above highest
+            new_p = Platform(random.randint(0, WIDTH-100), new_y)
+            platforms.add(new_p)
+            all_sprites.add(new_p)                    
 
         # Game Over if fall
         if player.rect.top > HEIGHT:
