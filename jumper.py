@@ -6,7 +6,7 @@ import random
 WIDTH, HEIGHT = 600, 400
 FPS = 60
 GRAVITY = 0.5
-JUMP_STRENGTH = -10
+JUMP_STRENGTH = -15
 
 # Colors
 BLACK = (0, 0, 0)
@@ -25,9 +25,9 @@ class Player(pygame.sprite.Sprite):
     def update(self, keys):
         # Horizontal movement
         if keys[pygame.K_LEFT]:
-            self.rect.x -= 5
+            self.rect.x -= 7
         if keys[pygame.K_RIGHT]:
-            self.rect.x += 5
+            self.rect.x += 7
 
         # Gravity
         self.vel_y += GRAVITY
