@@ -106,7 +106,12 @@ def run_game(screen):
         while len(platforms) < 6:
             highest_y = min(p.rect.y for p in platforms)  # top-most platform
             new_y = highest_y - random.randint(50, 120)   # spawn above highest
-            new_p = Platform(random.randint(0, WIDTH-100), new_y)
+            
+            #place new platform not too horizontal from center
+            player_x = player.rect.centerx
+            new_x = random.randint(max(0, player_x - 150), min(WIDTH-100, player_x +150))
+            
+            new_p = Platform(new_x, new_y)
             platforms.add(new_p)
             all_sprites.add(new_p)                    
 
