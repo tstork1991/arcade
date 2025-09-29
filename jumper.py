@@ -191,10 +191,19 @@ def run_game(screen):
             new_x = random.randint(max(0, player_x - 150), min(WIDTH-100, player_x +150))
             
             # After score 30
-            if score >= 45 and random.random() < 0.4: #40% chance after 45 points
-                new_p = BreakablePlatform(new_x, new_y)
-            if score >= 30 and random.random() < 0.3:  # 30% chance after 30 points
-                new_p = MovingPlatform(new_x, new_y)
+            if score >= 45: 
+                roll = random.random()
+                if roll < 0.5: #50% chance 
+                    new_p = BreakablePlatform(new_x, new_y)
+                elif roll < 0.7: #next 20% chance
+                    new_p = MovingPlatform(new_x, new_y)
+                else:
+                    new_p = Platform(new_x, new_y)
+            elif score >= 30:
+                if random.random() < 0.3:  # 30% chance after 30 points
+                    new_p = MovingPlatform(new_x, new_y)
+                else:
+                    new_p = Platform(new_x, new_y)
             else:
                 new_p = Platform(new_x, new_y)
 
