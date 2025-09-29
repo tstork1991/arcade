@@ -107,6 +107,18 @@ class MovingPlatform(Platform):
         if self.rect.left < 0 or self.rect.right > WIDTH:
             self.speed = -self.speed
 
+class BreakablePlatform(Platform):
+    def __init__(self, x, y, w=100, h=10):
+        super().__init__(x, y, w, h)
+        self.image.fill((200, 0, 0))  # red for breakable platforms
+        self.broken = False
+
+    def break_platform(self, platforms, all_sprites):
+        if not self.broken:
+            self.broken = True
+            platforms.remove(self)
+            all_sprites.remove(self)
+
 
 def run_game(screen):
     clock = pygame.time.Clock()
@@ -157,6 +169,10 @@ def run_game(screen):
                     player.rect.bottom = lowest.rect.top
                     player.vel_y = JUMP_STRENGTH
 
+                    #if its a breakable platform, remove it after touching
+                    if isinstance(lowest, BreakablePlatform):
+                        lowest.break_platform(platforms, all_sprites)
+
         # Scroll screen when player reaches top third
         if player.rect.top <= HEIGHT // 3:
             player.rect.y += abs(player.vel_y)
@@ -174,8 +190,10 @@ def run_game(screen):
             player_x = player.rect.centerx
             new_x = random.randint(max(0, player_x - 150), min(WIDTH-100, player_x +150))
             
-            # After score 30, start adding some moving platforms
-            if score >= 30 and random.random() < 0.3:  # 30% chance
+            # After score 30
+            if score >= 45 and random.random() < 0.4: #40% chance after 45 points
+                new_p = BreakablePlatform(new_x, new_y)
+            if score >= 30 and random.random() < 0.3:  # 30% chance after 30 points
                 new_p = MovingPlatform(new_x, new_y)
             else:
                 new_p = Platform(new_x, new_y)
@@ -211,9 +229,10 @@ def run_game(screen):
     # Check if player made top 5
     high_scores.append(("YOU", score))  # placeholder
     high_scores = sorted(high_scores, key=lambda x: x[1], reverse=True)[:5]
-    rank = [s for s in high_scores].index(("YOU", score)) + 1
+    
+    if any(init == "YOU" and sc == score for init, sc in high_scores):
+        rank = [s for s in high_scores].index(("YOU", score)) + 1
 
-    if rank <= 5:
         if rank == 1:
             congrats = big_font.render("NEW HIGH SCORE!", True, GREEN)
             screen.blit(congrats, (WIDTH // 2 - congrats.get_width() // 2, 150))
