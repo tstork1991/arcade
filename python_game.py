@@ -153,9 +153,10 @@ def run_game(screen):
         # Check if player made top 5
         high_scores.append(("YOU", score))  # placeholder initials
         high_scores = sorted(high_scores, key=lambda x: x[1], reverse=True)[:5]
-        rank = [s for s in high_scores].index(("YOU", score)) + 1
+        
+        if any(init == "YOU" and sc == score for init, sc in high_scores):
+            rank = [s for s in high_scores].index(("YOU", score)) + 1
 
-        if rank <= 5:
             if rank == 1:
                 congrats = big_font.render("YOU'RE NUMBER 1!", True, RED)
                 screen.blit(congrats, (WIDTH // 2 - congrats.get_width() // 2, 160))
