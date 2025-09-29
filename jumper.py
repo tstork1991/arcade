@@ -95,6 +95,19 @@ class Platform(pygame.sprite.Sprite):
         self.image.fill(GREEN)
         self.rect = self.image.get_rect(topleft=(x, y))
 
+class MovingPlatform(Platform):
+    def __init__(self, x, y, w=100, h=10, speed=2):
+        super().__init__(x, y, w, h)
+        self.speed = speed
+        self.image.fill((255, 255, 0)) #yellow for moving horizontal platforms
+
+    def update(self, keys=None):  # ignore player input
+        self.rect.x += self.speed
+        # Bounce at edges
+        if self.rect.left < 0 or self.rect.right > WIDTH:
+            self.speed = -self.speed
+
+
 def run_game(screen):
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("arial", 24)
@@ -161,9 +174,14 @@ def run_game(screen):
             player_x = player.rect.centerx
             new_x = random.randint(max(0, player_x - 150), min(WIDTH-100, player_x +150))
             
-            new_p = Platform(new_x, new_y)
+            # After score 30, start adding some moving platforms
+            if score >= 30 and random.random() < 0.3:  # 30% chance
+                new_p = MovingPlatform(new_x, new_y)
+            else:
+                new_p = Platform(new_x, new_y)
+
             platforms.add(new_p)
-            all_sprites.add(new_p)                    
+            all_sprites.add(new_p)                
 
         # Draw
         screen.fill(BLACK)
