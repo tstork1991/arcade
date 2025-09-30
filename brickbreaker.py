@@ -35,7 +35,7 @@ class Ball(pygame.sprite.Sprite):
         self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
         pygame.draw.circle(self.image, RED, (5, 5), 5)
         self.rect = self.image.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-        self.vel = [4, -4]
+        self.vel = [3, -3]
 
     def update(self):
         self.rect.x += self.vel[0]
@@ -66,6 +66,7 @@ def run_game(screen):
     paddle = Paddle()
     ball = Ball()
     all_sprites.add(paddle, ball)
+    waiting_to_start = True 
 
     # Create grid of bricks
     for row in range(5):
@@ -84,10 +85,15 @@ def run_game(screen):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if waiting_to_start and event.key == pygame.K_SPACE:
+                    waiting_to_start = False 
 
         # Update
         paddle.update(keys)
-        ball.update()
+
+        if not waiting_to_start:
+            ball.update()
 
         # Ball hits paddle
         if ball.rect.colliderect(paddle.rect):
@@ -113,6 +119,10 @@ def run_game(screen):
         # Draw
         screen.fill(BLACK)
         all_sprites.draw(screen)
+
+        if waiting_to_start:
+            start_text = font.render("Press SPACE to Start", True, WHITE)
+            screen.blit(start_text, (WIDTH // 2- start_text.get_width() // 2, HEIGHT // 2 - 20))
 
         score_text = font.render(f"Score: {score}", True, WHITE)
         lives_text = font.render(f"Lives: {lives}", True, WHITE)
