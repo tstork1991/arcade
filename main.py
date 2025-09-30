@@ -2,6 +2,7 @@ import pygame
 import sys
 import python_game
 import jumper
+import brickbreaker
 
 pygame.init()
 
@@ -22,7 +23,7 @@ title_font = pygame.font.SysFont("arialblack", 48)
 menu_font = pygame.font.SysFont("arial", 32)
 
 # Menu options
-options = ["Python", "Jumper", "Quit"]
+options = ["Python", "Jumper", "Brick Breaker", "Quit"]
 selected = 0
 
 
@@ -75,6 +76,8 @@ def main_menu():
                         python_game.run_game(screen)    
                     elif options[selected] == "Jumper":
                         jumper.run_game(screen)
+                    elif options[selected] == "Brick Breaker":
+                        brickbreaker.run_game(screen)
                     elif options[selected] == "Quit":
                         pygame.quit()
                         sys.exit()
