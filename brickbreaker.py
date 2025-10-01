@@ -113,9 +113,11 @@ def run_game(screen):
             else:
                 # Reset ball + paddle
                 ball.rect.center = (WIDTH // 2, HEIGHT // 2)
-                ball.vel = [4 * random.choice([-1, 1]), -4]
+                ball.vel = [3 * random.choice([-1, 1]), -3]
                 paddle.rect.midbottom = (WIDTH // 2, HEIGHT - 20)
 
+                waiting_to_start = True 
+                
         # Draw
         screen.fill(BLACK)
         all_sprites.draw(screen)
