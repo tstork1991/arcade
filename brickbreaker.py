@@ -190,6 +190,7 @@ def run_game(screen, level_index=0):
     score = 0
     lives = 3
     running = True
+    cleared = False
 
     while running:
         keys = pygame.key.get_pressed()
@@ -219,7 +220,12 @@ def run_game(screen, level_index=0):
                 destroyed = b.hit()
                 if destroyed:
                     score += 10
-
+        
+        # Level cleared if no bricks remain
+        if len(bricks) == 0:
+            running = False
+            cleared = True
+            break
 
         # Ball falls below screen
         if ball.rect.top > HEIGHT:
@@ -250,11 +256,36 @@ def run_game(screen, level_index=0):
         pygame.display.flip()
         clock.tick(FPS)
 
-    # Game Over
+    # End screen
     screen.fill(BLACK)
-    msg = font.render("Game Over!", True, WHITE)
+    big_font = pygame.font.SysFont("arial", 32)
+
+    if cleared:
+        msg = big_font.render("LEVEL CLEARED!", True, GREEN)
+        tip = font.render("Press Enter to play again or Esc to return", True, WHITE)
+    else:
+        msg = big_font.render("GAME OVER", True, RED)
+        tip = font.render("Press Enter to try again or Esc to return", True, WHITE)
+
     final_score = font.render(f"Final Score: {score}", True, WHITE)
+
     screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2 - 40))
     screen.blit(final_score, (WIDTH // 2 - final_score.get_width() // 2, HEIGHT // 2))
+    screen.blit(tip, (WIDTH // 2 - tip.get_width() // 2, HEIGHT // 2 + 40))
+
     pygame.display.flip()
-    pygame.time.wait(2000)
+
+    # Wait for input
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  # restart same level
+                    run_game(screen, level_index)
+                    return
+                elif event.key == pygame.K_ESCAPE:  # back to level select
+                    return
+
