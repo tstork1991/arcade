@@ -6,6 +6,41 @@ import random
 WIDTH, HEIGHT = 600, 400
 FPS = 60
 
+#brick constants
+BRICK_W, BRICK_H = 50, 20
+BRICK_GAP_X, BRICK_GAP_Y = 5, 5
+BRICK_COLS = 10
+
+
+# Level layouts: ' ' = empty, '1' = 1-hit, '2' = 2-hit, '3' = 3-hit
+LEVELS = [
+    # Level 1 – simple wall of 1-hit bricks
+    [
+        "1111111111",
+        "1111111111",
+        "1111111111",
+        "1111111111",
+        "1111111111",
+    ],
+    # Level 2 – tougher core with 3-hit bricks
+    [
+        "1112222211",
+        "1122332211",
+        "1233333211",
+        "1122332211",
+        "1112222211",
+    ],
+    # Level 3 – not finished yet
+    [
+        "  222222  ",
+        " 21111112 ",
+        "2111111112",
+        " 21111112 ",
+        "  222222  ",
+    ],
+]
+
+
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -49,13 +84,94 @@ class Ball(pygame.sprite.Sprite):
 
 # Brick
 class Brick(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, hits=1):
         super().__init__()
-        self.image = pygame.Surface((50, 20))
-        self.image.fill(GREEN)
+        self.max_hits = hits
+        self.hits = hits
+        self.image = pygame.Surface((BRICK_W, BRICK_H))
         self.rect = self.image.get_rect(topleft=(x, y))
+        self._refresh_color()
 
-def run_game(screen):
+    def _refresh_color(self):
+        # Color based on remaining hits
+        if self.hits >= 3:
+            self.image.fill((160, 80, 200))   # purple for 3-hit full
+        elif self.hits == 2:
+            self.image.fill((255, 140, 0))    # orange for 2-hit
+        else:
+            self.image.fill((0, 200, 0))      # green for 1-hit
+
+    def hit(self):
+        """Reduce health by 1. Return True if destroyed."""
+        self.hits -= 1
+        if self.hits <= 0:
+            self.kill()
+            return True
+        else:
+            self._refresh_color()
+            return False
+
+
+#build level 
+def build_level(level_index, bricks_group, all_sprites_group):
+    bricks_group.empty()
+    # center the grid horizontally
+    total_w = BRICK_COLS * BRICK_W + (BRICK_COLS - 1) * BRICK_GAP_X
+    start_x = (WIDTH - total_w) // 2
+    rows = LEVELS[level_index]
+    for r, row in enumerate(rows):
+        for c, ch in enumerate(row):
+            if ch == ' ':
+                continue
+            # map characters to hits: 1 = 1-hit, 2 = 2-hit, 3 = 3-hit
+            hits = 3 if ch == '3' else 2 if ch == '2' else 1
+            x = start_x + c * (BRICK_W + BRICK_GAP_X)
+            y = 40 + r * (BRICK_H + BRICK_GAP_Y)
+            b = Brick(x, y, hits=hits)
+            bricks_group.add(b)
+            all_sprites_group.add(b)
+
+
+#level selection
+def level_select(screen):
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont("arial", 32)
+    options = [f"Level {i+1}" for i in range(len(LEVELS))] + ["Back"]
+    selected = 0
+
+    selecting = True
+    while selecting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(options)
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(options)
+                elif event.key == pygame.K_RETURN:
+                    if options[selected] == "Back":
+                        return None
+                    else:
+                        return selected  # return level index
+
+        # Draw menu
+        screen.fill(BLACK)
+        title = font.render("Choose a Level", True, WHITE)
+        screen.blit(title, (WIDTH//2 - title.get_width()//2, 60))
+
+        for i, opt in enumerate(options):
+            color = GREEN if i == selected else WHITE
+            text = font.render(opt, True, color)
+            screen.blit(text, (WIDTH//2 - text.get_width()//2, 140 + i*40))
+
+        pygame.display.flip()
+        clock.tick(30)
+
+
+
+def run_game(screen, level_index=0):
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("arial", 24)
 
@@ -68,12 +184,8 @@ def run_game(screen):
     all_sprites.add(paddle, ball)
     waiting_to_start = True 
 
-    # Create grid of bricks
-    for row in range(5):
-        for col in range(10):
-            brick = Brick(col * 55 + 20, row * 25 + 40)
-            all_sprites.add(brick)
-            bricks.add(brick)
+    #build chosen level
+    build_level(level_index, bricks, all_sprites)
 
     score = 0
     lives = 3
@@ -100,10 +212,14 @@ def run_game(screen):
             ball.vel[1] = -ball.vel[1]
 
         # Ball hits brick
-        hit_brick = pygame.sprite.spritecollide(ball, bricks, True)
-        if hit_brick:
+        hit_list = pygame.sprite.spritecollide(ball, bricks, False)
+        if hit_list:
             ball.vel[1] = -ball.vel[1]
-            score += len(hit_brick) * 10
+            for b in hit_list:
+                destroyed = b.hit()
+                if destroyed:
+                    score += 10
+
 
         # Ball falls below screen
         if ball.rect.top > HEIGHT:

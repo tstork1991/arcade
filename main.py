@@ -77,7 +77,9 @@ def main_menu():
                     elif options[selected] == "Jumper":
                         jumper.run_game(screen)
                     elif options[selected] == "Brick Breaker":
-                        brickbreaker.run_game(screen)
+                        level = brickbreaker.level_select(screen)
+                        if level is not None:
+                            brickbreaker.run_game(screen, level)
                     elif options[selected] == "Quit":
                         pygame.quit()
                         sys.exit()
